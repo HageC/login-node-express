@@ -11,8 +11,6 @@ const Login = () => {
     e.preventDefault();
 
     if (login) {
-      const response = await fetch("/api");
-      console.log(response);
       console.log("Login");
     } else {
       console.log("Signup");
