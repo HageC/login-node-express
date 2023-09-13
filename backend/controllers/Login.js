@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import { CustomError } from "../middleware/custom-error.js";
+import { createJWT } from "../utils/jwt.js";
 const register = async (req, res, next) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
@@ -16,7 +17,19 @@ const register = async (req, res, next) => {
       );
     }
     const user = await User.create({ name, email, password });
-    res.status(200).json({ message: "User has been created." });
+    const tokenUser = createJWT({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    });
+    res.cookie("access_token", tokenUser, {
+      expires: new Date(Date.now() + 24 * 3600000),
+      httpOnly: true,
+      signed: true,
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    res.status(200).json({ access_token: tokenUser });
   } catch (error) {
     next(error);
   }
@@ -41,7 +54,20 @@ const login = async (req, res, next) => {
       return next(new CustomError("Password is invalid.", 401));
     }
 
-    res.status(200).json({ message: "User has been logged in." });
+    const tokenUser = createJWT({
+      id: emailExists._id,
+      name: emailExists.name,
+      email: emailExists.email,
+    });
+
+    res.cookie("access_token", tokenUser, {
+      expires: new Date(Date.now() + 24 * 3600000),
+      httpOnly: true,
+      signed: true,
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    res.status(200).json({ access_token: tokenUser });
   } catch (error) {
     next(error);
   }

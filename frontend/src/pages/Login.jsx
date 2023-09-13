@@ -2,19 +2,24 @@ import React from "react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import "../styles/Login.css";
-
+import { useGlobalContext } from "../context/globalState";
 const Login = () => {
   const { pathname } = useLocation();
   const [login, setLogin] = useState(pathname === "/login" ? true : false);
+  const [formValues, setFormValues] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const { handle_login_register } = useGlobalContext();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    handle_login_register(login, formValues);
+  };
 
-    if (login) {
-      console.log("Login");
-    } else {
-      console.log("Signup");
-    }
+  const handleChange = (e) => {
+    setFormValues({ ...formValues, [e.target.id]: e.target.value });
   };
   return (
     <div className="login-container">
@@ -31,6 +36,8 @@ const Login = () => {
                 type="text"
                 id="name"
                 placeholder="Enter your name"
+                value={formValues.name}
+                onChange={handleChange}
               />
             </>
           )}
@@ -42,6 +49,8 @@ const Login = () => {
             type="text"
             id="email"
             placeholder="Enter your email"
+            value={formValues.email}
+            onChange={handleChange}
           />
           <label className="form-label" htmlFor="password">
             Password
@@ -51,6 +60,8 @@ const Login = () => {
             type="password"
             id="password"
             placeholder="Enter your password"
+            value={formValues.password}
+            onChange={handleChange}
           />
 
           <button className="form-btn" onClick={handleSubmit}>
@@ -59,7 +70,12 @@ const Login = () => {
 
           <p className="form-switch">
             {login ? "Don't have an account?" : "Already have an account?"}
-            <span onClick={() => setLogin(!login)}>
+            <span
+              onClick={() => {
+                setLogin(!login);
+                setFormValues({ name: "", email: "", password: "" });
+              }}
+            >
               {login ? " Register here" : " Login here"}
             </span>
           </p>
