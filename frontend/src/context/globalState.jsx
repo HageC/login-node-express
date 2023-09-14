@@ -1,10 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 const AppContext = React.createContext();
 
 const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, isLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const handle_login_register = async (login, formValues) => {
     const { name, email, password } = formValues;
@@ -20,8 +20,22 @@ const AppProvider = ({ children }) => {
     }
   };
 
+  const checkUser = async () => {
+    try {
+      const response = await axios.get("/api/user/checkUser");
+      setUser(response.data);
+    } catch (error) {
+      setUser(null);
+      console.log(error.response.data);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    checkUser();
+  }, []);
   return (
-    <AppContext.Provider value={{ handle_login_register }}>
+    <AppContext.Provider value={{ handle_login_register, user, loading }}>
       {children}
     </AppContext.Provider>
   );

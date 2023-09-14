@@ -5,8 +5,8 @@ export const authenticate = (req, res, next) => {
   try {
     if (access_token) {
       const payload = verifyJWT(access_token);
-      const { user, id, name, email } = payload;
-      req.user = { user, id, name, email };
+      const { id, name } = payload;
+      req.user = { id, name };
     } else {
       return next(new CustomError("Authentication Invalid", 401));
     }

@@ -14,9 +14,7 @@ app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 app.use("/api/user", loginRouter);
-app.get("/test", authenticate, (req, res) => {
-  res.json(req.user);
-});
+
 app.use(errorHandler);
 const start = () => {
   try {

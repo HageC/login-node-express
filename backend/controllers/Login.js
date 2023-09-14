@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import { CustomError } from "../middleware/custom-error.js";
 import { createJWT } from "../utils/jwt.js";
+
 const register = async (req, res, next) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
@@ -29,7 +30,11 @@ const register = async (req, res, next) => {
       secure: process.env.NODE_ENV === "production",
     });
 
-    res.status(200).json({ access_token: tokenUser });
+    res.status(200).json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    });
   } catch (error) {
     next(error);
   }
@@ -67,10 +72,18 @@ const login = async (req, res, next) => {
       secure: process.env.NODE_ENV === "production",
     });
 
-    res.status(200).json({ access_token: tokenUser });
+    res.status(200).json({
+      id: emailExists._id,
+      name: emailExists.name,
+      email: emailExists.email,
+    });
   } catch (error) {
     next(error);
   }
 };
 
-export { register, login };
+const checkUser = (req, res) => {
+  res.status(200).json(req.user);
+};
+
+export { register, login, checkUser };
