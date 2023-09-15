@@ -5,7 +5,8 @@ import "../styles/Login.css";
 import { useGlobalContext } from "../context/globalState";
 
 const Login = () => {
-  const { user, handle_login_register, loading } = useGlobalContext();
+  const { user, handle_login_register, loading, loginLoading } =
+    useGlobalContext();
   const navigate = useNavigate();
   useEffect(() => {
     if (user) {
@@ -22,14 +23,20 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handle_login_register(login, formValues);
+    if (
+      !formValues.password ||
+      !formValues.email ||
+      (!formValues.name && !login)
+    ) {
+      return;
+    }
+    handle_login_register(login, formValues, setFormValues);
   };
 
   const handleChange = (e) => {
     setFormValues({ ...formValues, [e.target.id]: e.target.value });
   };
-
-  if (!loading) {
+  if (!loading && !user) {
     return (
       <div className="login-container">
         <div className="login-card">
@@ -73,7 +80,11 @@ const Login = () => {
               onChange={handleChange}
             />
 
-            <button className="form-btn" onClick={handleSubmit}>
+            <button
+              className="form-btn"
+              onClick={handleSubmit}
+              disabled={loginLoading}
+            >
               Submit
             </button>
 
@@ -81,11 +92,13 @@ const Login = () => {
               {login ? "Don't have an account?" : "Already have an account?"}
               <span
                 onClick={() => {
-                  setLogin(!login);
-                  setFormValues({ name: "", email: "", password: "" });
+                  if (!loginLoading) {
+                    setLogin(!login);
+                    setFormValues({ name: "", email: "", password: "" });
+                  }
                 }}
               >
-                {login ? " Register here" : " Login here"}
+                {login ? "Register here" : "Login here"}
               </span>
             </p>
           </form>

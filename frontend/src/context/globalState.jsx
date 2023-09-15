@@ -5,19 +5,25 @@ const AppContext = React.createContext();
 const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loginLoading, setLoginLoading] = useState(false);
 
-  const handle_login_register = async (login, formValues) => {
+  const handle_login_register = async (login, formValues, setFormValues) => {
     const { name, email, password } = formValues;
     const values = login ? { email, password } : { name, email, password };
+
+    setLoginLoading(true);
+
     try {
       const response = await axios.post(
         `/api/user/${login ? "login" : "register"}`,
         values
       );
-      console.log(response.data);
+      setUser(response.data);
     } catch (error) {
+      setFormValues({ ...formValues, password: "" });
       console.log(error);
     }
+    setLoginLoading(false);
   };
 
   const checkUser = async () => {
@@ -35,7 +41,9 @@ const AppProvider = ({ children }) => {
     checkUser();
   }, []);
   return (
-    <AppContext.Provider value={{ handle_login_register, user, loading }}>
+    <AppContext.Provider
+      value={{ handle_login_register, user, loading, loginLoading }}
+    >
       {children}
     </AppContext.Provider>
   );

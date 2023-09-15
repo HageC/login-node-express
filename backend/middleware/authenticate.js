@@ -8,6 +8,10 @@ export const authenticate = (req, res, next) => {
       const { id, name } = payload;
       req.user = { id, name };
     } else {
+      if (req.path === "/checkUser") {
+        return res.status(200).end();
+      }
+
       return next(new CustomError("Authentication Invalid", 401));
     }
     next();
